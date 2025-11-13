@@ -46,9 +46,11 @@ type metaOptions struct {
 	bin                string
 	last               bool
 	skipBump           bool
+	skipPrepare        bool
 	ci                 bool
 	local              bool
 	clean              bool
+	cleanPrepare       bool
 	debug              bool
 	conflictsVerbosity bool
 	gitlabDomain       string
@@ -68,9 +70,11 @@ func (p *Plugin) DiscoverActions(_ context.Context) ([]*action.Action, error) {
 			bin:                v.Name,
 			last:               input.Opt("last").(bool),
 			skipBump:           input.Opt("skip-bump").(bool),
+			skipPrepare:        input.Opt("skip-prepare").(bool),
 			ci:                 input.Opt("ci").(bool),
 			local:              input.Opt("local").(bool),
 			clean:              input.Opt("clean").(bool),
+			cleanPrepare:       input.Opt("clean-prepare").(bool),
 			debug:              input.Opt("debug").(bool),
 			conflictsVerbosity: input.Opt("conflicts-verbosity").(bool),
 			gitlabDomain:       input.Opt("gitlab-domain").(string),
@@ -151,7 +155,7 @@ func (ma *metaAction) run(ctx context.Context, environment, tags string, options
 	if options.local {
 		ma.Term().Info().Println("Starting local build")
 
-		// Commands executed sequentially
+		// Commands executed sequentially: compose → prepare → sync → deploy
 		err = ma.executeAction(ctx, "compose", nil, action.InputParams{
 			"skip-not-versioned":  true,
 			"conflicts-verbosity": options.conflictsVerbosity,
@@ -162,6 +166,18 @@ func (ma *metaAction) run(ctx context.Context, environment, tags string, options
 		}
 
 		ma.Term().Println()
+		if !options.skipPrepare {
+			err = ma.executeAction(ctx, "platform:prepare", nil, action.InputParams{
+				"clean": options.cleanPrepare,
+			}, options.persistent, options.streams)
+			if err != nil {
+				return fmt.Errorf("prepare error: %w", err)
+			}
+			ma.Term().Println()
+		} else {
+			ma.Term().Info().Println("--skip-prepare option detected: Skipping prepare execution")
+		}
+
 		err = ma.executeAction(ctx, "bump", nil, action.InputParams{
 			"sync": true,
 		}, options.persistent, options.streams)

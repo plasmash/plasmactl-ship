@@ -22,6 +22,11 @@ action:
       description: Skip execution of local bump command
       type: boolean
       default: false
+    - name: skip-prepare
+      title: Skip prepare
+      description: Skip execution of prepare command (only works with --local)
+      type: boolean
+      default: false
     - name: ci
       title: CI
       description: Execute all commands and deploy in CI (default)
@@ -44,6 +49,11 @@ action:
     - name: clean
       title: Clean
       description: Clean flag for compose command (only works with --local)
+      type: boolean
+      default: false
+    - name: clean-prepare
+      title: Clean prepare
+      description: Clean flag for prepare command - removes existing prepare directory (only works with --local)
       type: boolean
       default: false
     - name: debug
