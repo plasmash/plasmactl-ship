@@ -1,4 +1,4 @@
-module github.com/skilld-labs/plasmactl-meta
+module github.com/plasmash/plasmactl-ship
 
 go 1.25.0
 

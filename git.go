@@ -61,7 +61,7 @@ func (g *gitMeta) commitChangesIfAny() error {
 	commit, err := worktree.Commit(commitMessage, &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "Plasmactl",
-			Email: "no-reply@skilld.cloud",
+			Email: "noreply@plasma.sh",
 			When:  time.Now(),
 		},
 	})
